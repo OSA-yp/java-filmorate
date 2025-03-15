@@ -45,7 +45,8 @@ class FilmControllerTest {
 
         Set<ConstraintViolation<Film>> checks = validator.validate(film);
 
-        assertEquals("должно быть больше 0", checks.iterator().next().getMessage());
+//        assertEquals("должно быть больше 0", checks.iterator().next().getMessage());
+        assertEquals("must be greater than 0", checks.iterator().next().getMessage()); // for GitHub tests
     }
 
     @Test

@@ -4,17 +4,24 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
+import java.util.Locale;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class UserControllerTest {
+
+    @BeforeAll
+    public static void initializeLocaleAndTimeZone() {
+        Locale.setDefault(Locale.US);
+    }
 
     @Test
     void createCorrectUser() {
@@ -51,9 +58,11 @@ class UserControllerTest {
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         Validator validator = factory.getValidator();
 
+
         Set<ConstraintViolation<User>> checks = validator.validate(user);
 
-        assertEquals("должно содержать прошедшую дату", checks.iterator().next().getMessage());
+        //assertEquals("должно содержать прошедшую дату", checks.iterator().next().getMessage());
+        assertEquals("must be a past date", checks.iterator().next().getMessage()); // for GitHub tests
     }
 
 
