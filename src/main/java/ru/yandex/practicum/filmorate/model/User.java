@@ -1,32 +1,31 @@
 package ru.yandex.practicum.filmorate.model;
 
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Past;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import org.hibernate.validator.constraints.Length;
 
 import java.time.LocalDate;
 
 @Data
 @AllArgsConstructor
-public class Film {
+public class User {
 
     private long id;
 
+    @NotNull
+    @Email
+    private String email;
+
     @NotBlank
+    private String login;
+
     private String name;
 
     @NotNull
-    @Length(max = 200)
-    private String description;
-
-    @NotNull
-    private LocalDate releaseDate;
-
-    @NotNull
-    @Positive
-    private int duration;
+    @Past
+    private LocalDate birthday;
 
 }
