@@ -9,12 +9,12 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
 public abstract class AbstractController {
 
     @ExceptionHandler(ValidationException.class)
-    public ResponseEntity<String> ExceptionHandler(ValidationException e) {
+    public ResponseEntity<String> exceptionHandler(ValidationException e) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
     }
 
     @ExceptionHandler(NotFoundException.class)
-    public ResponseEntity<String> NotFoundExceptionHandler(NotFoundException e) {
+    public ResponseEntity<String> notFoundExceptionHandler(NotFoundException e) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
     }
 }
