@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import com.google.gson.Gson;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -47,9 +48,10 @@ public class FilmController extends AbstractController {
     private void validateNewFilm(Film film) {
         final LocalDate FIRST_FILM_RELEASE_DATE = LocalDate.of(1895, 12, 28);
         if (film.getReleaseDate().isBefore(FIRST_FILM_RELEASE_DATE)) {
+            Gson gson = new Gson();
             String message = "Film release date must be after 28/12/1895";
             log.warn(message);
-            throw new ValidationException(message);
+            throw new ValidationException(gson.toJson(message));
         }
 
     }
@@ -57,9 +59,10 @@ public class FilmController extends AbstractController {
     private void validateFilmToUpdate(Film film) {
         validateNewFilm(film);
         if (!films.containsKey(film.getId())) {
+            Gson gson = new Gson();
             String message = "Film with id=" + film.getId() + " not found";
             log.warn(message);
-            throw new NotFoundException(message);
+            throw new NotFoundException(gson.toJson(message));
         }
     }
 
