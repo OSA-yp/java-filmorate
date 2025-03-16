@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import com.google.gson.Gson;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -52,10 +51,9 @@ public class UserController extends AbstractController {
         validateNewUser(user);
 
         if (!users.containsKey(user.getId())) {
-            Gson gson = new Gson();
             String message = "User with id=" + user.getId() + " not found";
             log.warn(message);
-            throw new NotFoundException(gson.toJson(message));
+            throw new NotFoundException(message);
         }
     }
 

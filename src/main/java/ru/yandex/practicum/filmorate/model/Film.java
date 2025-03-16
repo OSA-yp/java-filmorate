@@ -18,14 +18,12 @@ public class Film {
     @NotBlank
     private String name;
 
-    @NotNull
     @Length(max = 200)
     private String description;
 
     @NotNull
     private LocalDate releaseDate;
 
-    @NotNull
     @Positive
     private int duration;
 
