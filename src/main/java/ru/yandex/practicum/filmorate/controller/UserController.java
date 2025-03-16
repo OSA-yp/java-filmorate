@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import com.google.gson.Gson;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -21,6 +22,7 @@ public class UserController extends AbstractController {
     @PostMapping
     public User createUser(@RequestBody @Valid User newUser) {
         validateNewUser(newUser);
+//        newUser.setId(userId++);
         newUser.setId(userId++);
         users.put(newUser.getId(), newUser);
         log.info("New user with id={} was created", newUser.getId());
@@ -52,8 +54,9 @@ public class UserController extends AbstractController {
 
         if (!users.containsKey(user.getId())) {
             String message = "User with id=" + user.getId() + " not found";
+            Gson gson = new Gson();
             log.warn(message);
-            throw new NotFoundException(message);
+            throw new NotFoundException(gson.toJson(message));
         }
     }
 
