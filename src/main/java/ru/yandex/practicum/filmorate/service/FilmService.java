@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.exception.StorageException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
@@ -26,7 +27,11 @@ public class FilmService {
     public Film createFilm(Film newFilm) {
         validateNewFilm(newFilm);
         newFilm.setId(filmId++);
-        log.info("New film with id={} was created - {}", newFilm.getId(), filmStorage.createFilm(newFilm));
+        boolean wasCreated = filmStorage.createFilm(newFilm);
+        if (!wasCreated) {
+            throw new StorageException(newFilm + " wasn't created");
+        }
+        log.info("New film with id={} was created", newFilm.getId());
         return newFilm;
     }
 
@@ -37,17 +42,20 @@ public class FilmService {
 
     public Film updateFilm(Film filmToUpdate) {
         validateFilmToUpdate(filmToUpdate);
-        log.info("User with id={} was updated - {}", filmToUpdate.getId(), filmStorage.updateFilm(filmToUpdate));
+        boolean wasUpdated = filmStorage.updateFilm(filmToUpdate);
+        if (!wasUpdated) {
+            throw new StorageException(filmToUpdate + " wasn't updated");
+        }
+        log.info("User with id={} was updated", filmToUpdate.getId());
         return filmStorage.getFilmById(filmToUpdate.getId()).orElse(null);
     }
 
     private void validateNewFilm(Film film) {
         final LocalDate FIRST_FILM_RELEASE_DATE = LocalDate.of(1895, 12, 28);
         if (film.getReleaseDate().isBefore(FIRST_FILM_RELEASE_DATE)) {
-            Gson gson = new Gson();
             String message = "Film release date must be after 28/12/1895";
             log.warn(message);
-            throw new ValidationException(gson.toJson(message));
+            throw new ValidationException(message);
         }
 
     }
