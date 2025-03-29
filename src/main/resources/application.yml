@@ -1,0 +1,7 @@
+
+
+logging.level.org.zalando.logbook: TRACE
+
+server:
+  error:
+    include-binding-errors: always
