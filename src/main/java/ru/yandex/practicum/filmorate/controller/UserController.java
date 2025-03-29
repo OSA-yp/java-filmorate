@@ -20,8 +20,6 @@ public class UserController {
         this.userService = userService;
     }
 
-    // TODO - добавить методы про друзей
-
     @PostMapping
     public User createUser(@RequestBody @Valid User newUser) {
         return userService.createUser(newUser);
@@ -47,21 +45,18 @@ public class UserController {
         return userService.getUserCommonFriends(userId, otherUserId);
     }
 
-
     @PutMapping
     public User updateUser(@RequestBody @Valid User userToUpdate) {
         return userService.updateUser(userToUpdate);
     }
 
     @PutMapping("/{userId}/friends/{friendId}")
-    public void addFriend(@PathVariable long userId, @PathVariable long friendId){
+    public void addFriend(@PathVariable long userId, @PathVariable long friendId) {
         userService.addFriend(userId, friendId);
     }
 
     @DeleteMapping("/{userId}/friends/{friendId}")
-    public void deleteFriend(@PathVariable long userId, @PathVariable long friendId){
+    public void deleteFriend(@PathVariable long userId, @PathVariable long friendId) {
         userService.deleteFriend(userId, friendId);
     }
-
-
 }

@@ -5,11 +5,14 @@ import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
 import org.junit.jupiter.api.Test;
+import ru.yandex.practicum.filmorate.config.AppConfig;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.service.UserService;
 import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
+import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
 
 import java.time.LocalDate;
 import java.util.HashSet;
@@ -23,7 +26,7 @@ class FilmControllerTest {
 
     @Test
     void createCorrectFilm() {
-        FilmController fc = new FilmController(new FilmService(new InMemoryFilmStorage()));
+        FilmController fc = new FilmController(new FilmService(new AppConfig(), new InMemoryFilmStorage(), new UserService(new InMemoryUserStorage()) ));
         Film film = new Film(-1, "name", "description", LocalDate.now(), 120);
         fc.createFilm(film);
 
@@ -32,7 +35,7 @@ class FilmControllerTest {
 
     @Test
     void createToOldFilm() {
-        FilmController fc = new FilmController(new FilmService(new InMemoryFilmStorage()));
+        FilmController fc = new FilmController(new FilmService(new AppConfig(), new InMemoryFilmStorage(), new UserService(new InMemoryUserStorage()) ));
         Film film = new Film(-1, "name", "description", LocalDate.of(1800, 1, 1), 120);
 
         assertThrows(ValidationException.class, () -> fc.createFilm(film));
@@ -40,7 +43,7 @@ class FilmControllerTest {
 
     @Test
     void createFilmWithNegativeDuration() {
-        FilmController fc = new FilmController(new FilmService(new InMemoryFilmStorage()));
+        FilmController fc = new FilmController(new FilmService(new AppConfig(), new InMemoryFilmStorage(), new UserService(new InMemoryUserStorage()) ));
         Film film = new Film(-1, "name", "description", LocalDate.of(1900, 1, 1), -120);
 
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
@@ -54,7 +57,7 @@ class FilmControllerTest {
 
     @Test
     void updateFilmWithWrongId() {
-        FilmController fc = new FilmController(new FilmService(new InMemoryFilmStorage()));
+        FilmController fc = new FilmController(new FilmService(new AppConfig(), new InMemoryFilmStorage(), new UserService(new InMemoryUserStorage()) ));
         Film film = new Film(-1, "name", "description", LocalDate.now(), 120, new HashSet<>() {
         });
         assertThrows(NotFoundException.class, () -> fc.updateFilm(film));

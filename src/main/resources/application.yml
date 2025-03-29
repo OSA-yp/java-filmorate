@@ -1,7 +1,8 @@
-
-
 logging.level.org.zalando.logbook: TRACE
 
 server:
   error:
     include-binding-errors: always
+
+filmorate:
+  default-top-film-count: 10
