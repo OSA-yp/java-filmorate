@@ -1,8 +1,10 @@
 package ru.yandex.practicum.filmorate.service;
 
-import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.config.AppConfig;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.StorageException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
@@ -17,11 +19,15 @@ import java.util.Optional;
 @Service
 public class FilmService {
 
+    private final AppConfig appConfig;
     private final FilmStorage filmStorage;
+    private final UserService userService;
     private Long filmId = 1L;
 
-    public FilmService(FilmStorage filmStorage) {
+    public FilmService(AppConfig appConfig, FilmStorage filmStorage, UserService userService) {
+        this.appConfig = appConfig;
         this.filmStorage = filmStorage;
+        this.userService = userService;
     }
 
     public Film createFilm(Film newFilm) {
@@ -38,6 +44,13 @@ public class FilmService {
     public Collection<Film> getFilms() {
         log.info("{} films were read", filmStorage.getFilmsCount());
         return filmStorage.getFilms();
+    }
+
+    public Collection<Film> getTopFilms(Integer count) {
+        if (count == null) {
+            count = appConfig.getDefaultTopFilmCount();
+        }
+        return filmStorage.getTopFilms(count);
     }
 
     public Film updateFilm(Film filmToUpdate) {
@@ -60,13 +73,50 @@ public class FilmService {
 
     }
 
+    public void addUserLike(long filmId, long userId) {
+        checkFilmExist(filmId);
+        userService.checkUserExist(userId);
+
+        boolean wasAdded = filmStorage.addUserLike(filmId, userId);
+        if (!wasAdded) {
+            throw new StorageException("Like by User with id=" + userId + " wasn't added to Film with id=" + filmId);
+        }
+    }
+
+    public void deleteUserLike(long filmId, long userId) {
+        checkFilmExist(filmId);
+        checkFilmUserLikeExist(filmId, userId);
+
+        boolean wasAdded = filmStorage.deleteUserLike(filmId, userId);
+        if (!wasAdded) {
+            throw new StorageException("Like by User with id=" + userId + " wasn't delete from Film with id=" + filmId);
+        }
+    }
+
     private void validateFilmToUpdate(Film film) {
         validateNewFilm(film);
-        Optional<Film> optionalFilm = filmStorage.getFilmById(film.getId());
+        checkFilmExist(film.getId());
+    }
+
+    private void checkFilmExist(long filmId) {
+        Optional<Film> optionalFilm = filmStorage.getFilmById(filmId);
         if (optionalFilm.isEmpty()) {
-            String message = "Film with id=" + film.getId() + " not found";
+            String message = "Film with id=" + filmId + " not found";
             log.warn(message);
             throw new NotFoundException(message);
         }
     }
+
+    private void checkFilmUserLikeExist(long filmId, long userLikeId) {
+        Optional<Film> optionalFilm = filmStorage.getFilmById(filmId);
+
+        if (optionalFilm.isPresent()) {
+            if (!optionalFilm.get().getUsersLikes().contains(userLikeId)) {
+                String message = "Like with User id=" + userLikeId + " not found";
+                log.warn(message);
+                throw new NotFoundException(message);
+            }
+        }
+    }
 }
+

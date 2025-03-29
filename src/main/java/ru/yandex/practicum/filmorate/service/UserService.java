@@ -100,7 +100,7 @@ public class UserService {
         checkUserExist(user.getId());
     }
 
-    private boolean checkUserExist(long id) {
+    protected boolean checkUserExist(long id) {
         Optional<User> mayBeUser = userStorage.findUserById(id);
         if (mayBeUser.isEmpty()) {
             String message = "User with id=" + id + " not found";

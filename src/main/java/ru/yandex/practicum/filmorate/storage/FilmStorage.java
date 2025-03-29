@@ -16,4 +16,10 @@ public interface FilmStorage {
     Optional<Film> getFilmById(long id);
 
     int getFilmsCount();
+
+    boolean addUserLike(long filmId, long userId);
+
+    boolean deleteUserLike(long filmId, long userId);
+
+    Collection<Film> getTopFilms(int count);
 }
