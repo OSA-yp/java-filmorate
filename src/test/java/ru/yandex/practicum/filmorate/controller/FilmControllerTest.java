@@ -26,8 +26,8 @@ class FilmControllerTest {
 
     @Test
     void createCorrectFilm() {
-        FilmController fc = new FilmController(new FilmService(new AppConfig(), new InMemoryFilmStorage(), new UserService(new InMemoryUserStorage()) ));
-        Film film = new Film(-1, "name", "description", LocalDate.now(), 120);
+        FilmController fc = new FilmController(new FilmService(new AppConfig(), new InMemoryFilmStorage(), new UserService(new InMemoryUserStorage())));
+        Film film = new Film(-1, "name", "description", LocalDate.now(), 120, new HashSet<>());
         fc.createFilm(film);
 
         assertEquals(1, film.getId());
@@ -35,16 +35,16 @@ class FilmControllerTest {
 
     @Test
     void createToOldFilm() {
-        FilmController fc = new FilmController(new FilmService(new AppConfig(), new InMemoryFilmStorage(), new UserService(new InMemoryUserStorage()) ));
-        Film film = new Film(-1, "name", "description", LocalDate.of(1800, 1, 1), 120);
+        FilmController fc = new FilmController(new FilmService(new AppConfig(), new InMemoryFilmStorage(), new UserService(new InMemoryUserStorage())));
+        Film film = new Film(-1, "name", "description", LocalDate.of(1800, 1, 1), 120, new HashSet<>());
 
         assertThrows(ValidationException.class, () -> fc.createFilm(film));
     }
 
     @Test
     void createFilmWithNegativeDuration() {
-        FilmController fc = new FilmController(new FilmService(new AppConfig(), new InMemoryFilmStorage(), new UserService(new InMemoryUserStorage()) ));
-        Film film = new Film(-1, "name", "description", LocalDate.of(1900, 1, 1), -120);
+        FilmController fc = new FilmController(new FilmService(new AppConfig(), new InMemoryFilmStorage(), new UserService(new InMemoryUserStorage())));
+        Film film = new Film(-1, "name", "description", LocalDate.of(1900, 1, 1), -120, new HashSet<>());
 
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         Validator validator = factory.getValidator();
@@ -57,9 +57,8 @@ class FilmControllerTest {
 
     @Test
     void updateFilmWithWrongId() {
-        FilmController fc = new FilmController(new FilmService(new AppConfig(), new InMemoryFilmStorage(), new UserService(new InMemoryUserStorage()) ));
-        Film film = new Film(-1, "name", "description", LocalDate.now(), 120, new HashSet<>() {
-        });
+        FilmController fc = new FilmController(new FilmService(new AppConfig(), new InMemoryFilmStorage(), new UserService(new InMemoryUserStorage())));
+        Film film = new Film(-1, "name", "description", LocalDate.now(), 120, new HashSet<>());
         assertThrows(NotFoundException.class, () -> fc.updateFilm(film));
     }
 

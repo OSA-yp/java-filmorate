@@ -12,7 +12,4 @@ public class FilmorateApplication {
     public static void main(String[] args) {
         SpringApplication.run(FilmorateApplication.class, args);
     }
- // TODO - логирование - ТЗ
-
- // TODO - тестирование - ТЗ
 }
