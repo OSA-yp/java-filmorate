@@ -22,5 +22,5 @@ public interface UserStorage {
 
     boolean findFriendById(long userId, long friendId);
 
-    Set<Long> getUserFriends(long id);
+    Set<User> getUserFriends(long id);
 }

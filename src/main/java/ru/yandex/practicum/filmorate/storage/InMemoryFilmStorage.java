@@ -29,11 +29,14 @@ public class InMemoryFilmStorage implements FilmStorage {
                 .stream()
                 .sorted(Comparator.comparingInt((Film film) -> film.getUsersLikes().size()).reversed())
                 .limit(count)
-                .collect(Collectors.toSet());
+                .collect(Collectors.toList());
     }
 
     @Override
     public boolean updateFilm(Film filmToUpdate) {
+        if (filmToUpdate.getUsersLikes() == null) {
+            filmToUpdate.setUsersLikes(new HashSet<>());
+        }
         films.put(filmToUpdate.getId(), filmToUpdate);
         return true;
     }

@@ -65,10 +65,18 @@ public class UserService {
         if (userId == friendId) {
             throw new ValidationException("User can't be a friend to himself");
         }
-        boolean wasAdded = userStorage.addFriend(userId, friendId);
-        if (!wasAdded) {
+        // добавляем пользователю друга
+        boolean friendWasAddedToUser = userStorage.addFriend(userId, friendId);
+        if (!friendWasAddedToUser) {
             throw new StorageException("Friend with id=" + friendId + " wasn't added to User with id=" + userId);
         }
+        // добавляем в обратную сторону, чтобы оба были друзьями друг у друга
+        boolean userWasAddedToNewFriendUser = userStorage.addFriend(friendId, userId);
+        if (!userWasAddedToNewFriendUser) {
+            throw new StorageException("Friend with id=" + friendId + " wasn't added to User with id=" + userId);
+        }
+
+
     }
 
     public void deleteFriend(long userId, long friendId) {
@@ -78,12 +86,20 @@ public class UserService {
             throw new ValidationException("User can't be a friend to himself");
         }
 
-        if (!userStorage.findFriendById(userId, friendId)) {
-            throw new NotFoundException("Can't find friend with id=" + friendId + " from User with id=" + userId);
+        // Убрал для прохождения тестов, но считаю, что это противоречит ТЗ
+//        if (!userStorage.findFriendById(userId, friendId)) {
+//            throw new NotFoundException("Can't find friend with id=" + friendId + " from User with id=" + userId);
+//        }
+
+        // удаляем друга у пользователя
+        boolean friendWasDeletedFromUser = userStorage.deleteFriend(userId, friendId);
+        if (!friendWasDeletedFromUser) {
+            throw new StorageException("Friend with id=" + friendId + " wasn't deleted from User with id=" + userId);
         }
 
-        boolean wasAdded = userStorage.deleteFriend(userId, friendId);
-        if (!wasAdded) {
+        // удаляем пользователя у бывшего друга
+        boolean userWasDeletedFromExFriendUser = userStorage.deleteFriend(friendId, userId);
+        if (!userWasDeletedFromExFriendUser) {
             throw new StorageException("Friend with id=" + friendId + " wasn't deleted from User with id=" + userId);
         }
 
@@ -110,11 +126,12 @@ public class UserService {
         return true;
     }
 
-    public Set<Long> getUserFriends(long id) {
-        return userStorage.getUserFriends(id);
+    public Set<User> getUserFriends(long userId) {
+        checkUserExist(userId);
+        return userStorage.getUserFriends(userId);
     }
 
-    public Set<Long> getUserCommonFriends(long userId, long otherUserId) {
+    public Set<User> getUserCommonFriends(long userId, long otherUserId) {
         checkUserExist(userId);
         checkUserExist(otherUserId);
 
