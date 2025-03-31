@@ -8,6 +8,7 @@ import lombok.Data;
 import org.hibernate.validator.constraints.Length;
 
 import java.time.LocalDate;
+import java.util.Set;
 
 @Data
 @AllArgsConstructor
@@ -27,4 +28,5 @@ public class Film {
     @Positive
     private int duration;
 
+    private Set<Long> usersLikes;
 }
