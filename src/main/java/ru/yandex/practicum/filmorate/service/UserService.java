@@ -18,16 +18,13 @@ import java.util.stream.Collectors;
 public class UserService {
 
     private final UserStorage userStorage;
-    private Long userId = 1L;
 
     public UserService(UserStorage userStorage) {
         this.userStorage = userStorage;
     }
 
-
     public User createUser(User newUser) {
-        validateNewUser(newUser);
-        newUser.setId(userId++);
+        setUserNameIfEmpty(newUser);
         boolean wasCreated = userStorage.createUser(newUser);
         if (!wasCreated) {
             throw new StorageException(newUser + " wasn't created");
@@ -41,11 +38,7 @@ public class UserService {
     }
 
     public User getUserById(long id) {
-        if (checkUserExist(id)) {
-            Optional<User> user = userStorage.findUserById(id);
-            return user.orElse(null);
-        }
-        return null;
+        return checkAndGetUserById(id);
     }
 
     public User updateUser(User userToUpdate) {
@@ -60,8 +53,8 @@ public class UserService {
     }
 
     public void addFriend(long userId, long friendId) {
-        checkUserExist(userId);
-        checkUserExist(friendId);
+        checkAndGetUserById(userId);
+        checkAndGetUserById(friendId);
         if (userId == friendId) {
             throw new ValidationException("User can't be a friend to himself");
         }
@@ -80,16 +73,11 @@ public class UserService {
     }
 
     public void deleteFriend(long userId, long friendId) {
-        checkUserExist(userId);
-        checkUserExist(friendId);
+        checkAndGetUserById(userId);
+        checkAndGetUserById(friendId);
         if (userId == friendId) {
             throw new ValidationException("User can't be a friend to himself");
         }
-
-        // Убрал для прохождения тестов, но считаю, что это противоречит ТЗ
-//        if (!userStorage.findFriendById(userId, friendId)) {
-//            throw new NotFoundException("Can't find friend with id=" + friendId + " from User with id=" + userId);
-//        }
 
         // удаляем друга у пользователя
         boolean friendWasDeletedFromUser = userStorage.deleteFriend(userId, friendId);
@@ -105,43 +93,47 @@ public class UserService {
 
     }
 
-    private void validateNewUser(User user) {
+    private void setUserNameIfEmpty(User user) {
         if (user.getName() == null || user.getName().isEmpty()) {
             user.setName(user.getLogin());
         }
     }
 
     private void validateUserToUpdate(User user) {
-        validateNewUser(user);
-        checkUserExist(user.getId());
+        setUserNameIfEmpty(user);
+        checkAndGetUserById(user.getId());
     }
 
-    protected boolean checkUserExist(long id) {
+    protected User checkAndGetUserById(long id) {
         Optional<User> mayBeUser = userStorage.findUserById(id);
         if (mayBeUser.isEmpty()) {
             String message = "User with id=" + id + " not found";
             log.warn(message);
             throw new NotFoundException(message);
         }
-        return true;
+        return mayBeUser.get();
     }
 
     public Set<User> getUserFriends(long userId) {
-        checkUserExist(userId);
+        checkAndGetUserById(userId);
         return userStorage.getUserFriends(userId);
     }
 
     public Set<User> getUserCommonFriends(long userId, long otherUserId) {
-        checkUserExist(userId);
-        checkUserExist(otherUserId);
 
         if (userId == otherUserId) {
             throw new ValidationException("User can't have common friends with himself");
         }
 
-        return userStorage.getUserFriends(userId)
+        checkAndGetUserById(userId);
+        checkAndGetUserById(otherUserId);
+
+        Set<User> userFriends = userStorage.getUserFriends(userId);
+        Set<User> otherUserIdFriends = userStorage.getUserFriends(otherUserId);
+
+        return userFriends
                 .stream()
-                .filter(userStorage.getUserFriends(otherUserId)::contains)
+                .filter(otherUserIdFriends::contains)
                 .collect(Collectors.toSet());
     }
 }

@@ -10,9 +10,11 @@ import java.util.stream.Collectors;
 public class InMemoryUserStorage implements UserStorage {
 
     private final HashMap<Long, User> users = new HashMap<>();
+    private Long userId = 1L;
 
     @Override
     public boolean createUser(User newUser) {
+        newUser.setId(userId++);
         newUser.setFriends(new HashSet<>());
         users.put(newUser.getId(), newUser);
         return true;

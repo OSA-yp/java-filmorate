@@ -20,7 +20,7 @@ public class FilmService {
     private final AppConfig appConfig;
     private final FilmStorage filmStorage;
     private final UserService userService;
-    private Long filmId = 1L;
+
 
     public FilmService(AppConfig appConfig, FilmStorage filmStorage, UserService userService) {
         this.appConfig = appConfig;
@@ -29,8 +29,7 @@ public class FilmService {
     }
 
     public Film createFilm(Film newFilm) {
-        validateNewFilm(newFilm);
-        newFilm.setId(filmId++);
+        validateFilmReleaseDate(newFilm);
         boolean wasCreated = filmStorage.createFilm(newFilm);
         if (!wasCreated) {
             throw new StorageException(newFilm + " wasn't created");
@@ -61,7 +60,7 @@ public class FilmService {
         return filmStorage.getFilmById(filmToUpdate.getId()).orElse(null);
     }
 
-    private void validateNewFilm(Film film) {
+    private void validateFilmReleaseDate(Film film) {
         final LocalDate FIRST_FILM_RELEASE_DATE = LocalDate.of(1895, 12, 28);
         if (film.getReleaseDate().isBefore(FIRST_FILM_RELEASE_DATE)) {
             String message = "Film release date must be after 28/12/1895";
@@ -73,7 +72,7 @@ public class FilmService {
 
     public void addUserLike(long filmId, long userId) {
         checkFilmExist(filmId);
-        userService.checkUserExist(userId);
+        userService.checkAndGetUserById(userId);
 
         boolean wasAdded = filmStorage.addUserLike(filmId, userId);
         if (!wasAdded) {
@@ -92,7 +91,7 @@ public class FilmService {
     }
 
     private void validateFilmToUpdate(Film film) {
-        validateNewFilm(film);
+        validateFilmReleaseDate(film);
         checkFilmExist(film.getId());
     }
 

@@ -10,9 +10,11 @@ import java.util.stream.Collectors;
 public class InMemoryFilmStorage implements FilmStorage {
 
     private final HashMap<Long, Film> films = new HashMap<>();
+    private Long filmId = 1L;
 
     @Override
     public boolean createFilm(Film newFilm) {
+        newFilm.setId(filmId++);
         newFilm.setUsersLikes(new HashSet<>());
         films.put(newFilm.getId(), newFilm);
         return true;
