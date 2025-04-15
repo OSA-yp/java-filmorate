@@ -2,11 +2,12 @@ package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.dto.user.NewUserRequestDTO;
+import ru.yandex.practicum.filmorate.dto.user.UpdateUserRequestDTO;
+import ru.yandex.practicum.filmorate.dto.user.UserResponseDTO;
 import ru.yandex.practicum.filmorate.service.UserService;
 
 import java.util.Collection;
-import java.util.Set;
 
 @RestController
 @RequestMapping("/users")
@@ -19,38 +20,39 @@ public class UserController {
     }
 
     @PostMapping
-    public User createUser(@RequestBody @Valid User newUser) {
+    public UserResponseDTO createUser(@RequestBody @Valid NewUserRequestDTO newUser) {
         return userService.createUser(newUser);
     }
 
     @GetMapping
-    public Collection<User> getUsers() {
+    public Collection<UserResponseDTO> getUsers() {
         return userService.getUsers();
     }
 
     @GetMapping("/{userId}")
-    public User getUserById(@PathVariable long userId) {
+    public UserResponseDTO getUserById(@PathVariable long userId) {
         return userService.getUserById(userId);
     }
 
     @GetMapping("/{userId}/friends")
-    public Set<User> getUserFriends(@PathVariable long userId) {
+    public Collection<UserResponseDTO> getUserFriends(@PathVariable long userId) {
         return userService.getUserFriends(userId);
     }
 
     @GetMapping("/{userId}/friends/common/{otherUserId}")
-    public Set<User> getUserCommonFriends(@PathVariable long userId, @PathVariable long otherUserId) {
+    public Collection<UserResponseDTO> getUserCommonFriends(@PathVariable long userId, @PathVariable long otherUserId) {
         return userService.getUserCommonFriends(userId, otherUserId);
     }
 
     @PutMapping
-    public User updateUser(@RequestBody @Valid User userToUpdate) {
+    public UserResponseDTO updateUser(@RequestBody @Valid UpdateUserRequestDTO userToUpdate) {
         return userService.updateUser(userToUpdate);
     }
 
     @PutMapping("/{userId}/friends/{friendId}")
     public void addFriend(@PathVariable long userId, @PathVariable long friendId) {
         userService.addFriend(userId, friendId);
+
     }
 
     @DeleteMapping("/{userId}/friends/{friendId}")

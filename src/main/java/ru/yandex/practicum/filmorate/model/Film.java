@@ -30,5 +30,10 @@ public class Film {
 
     private Set<Long> usersLikes;
 
+    @NotNull
+    private MpaRate mpaRate;
+
+    private Set<Integer> genres;
+
 
 }

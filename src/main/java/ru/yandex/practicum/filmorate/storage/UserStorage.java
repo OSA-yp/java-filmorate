@@ -8,7 +8,7 @@ import java.util.Set;
 
 public interface UserStorage {
 
-    boolean createUser(User newUser);
+    Long createUser(User newUser);
 
     Collection<User> getUsers();
 
