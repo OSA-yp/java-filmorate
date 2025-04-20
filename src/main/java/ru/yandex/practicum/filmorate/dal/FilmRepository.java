@@ -20,7 +20,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
-@Slf4j
 @Repository
 @RequiredArgsConstructor
 public class FilmRepository {
@@ -112,7 +111,6 @@ public class FilmRepository {
         } catch (EmptyResultDataAccessException e) {
             return Optional.empty();
         }
-        log.warn(optionalFilm.get().toString());
         return optionalFilm;
     }
 

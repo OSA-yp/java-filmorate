@@ -110,9 +110,4 @@ public class FilmDbStorage implements FilmStorage {
 
         film.setUsersLikes(filmRepository.getFilmUserLikes(film.getId()));
     }
-
-    // TODO getFilmGenres
-
-    // TODO setFilmGenres
-
 }

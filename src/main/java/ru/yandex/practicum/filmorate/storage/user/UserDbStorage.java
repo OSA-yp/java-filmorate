@@ -10,6 +10,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Component
 @Qualifier("userDbStorage")
@@ -25,7 +26,12 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public Collection<User> getUsers() {
-        return userRepository.getAllUsers();
+        Collection<User> users = userRepository.getAllUsers();
+
+        // добавляем друзей
+        users.forEach(this::addUserFriends);
+
+        return users;
     }
 
     @Override
@@ -35,7 +41,14 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public Optional<User> findUserById(long id) {
-        return userRepository.getUserById(id);
+        Optional<User> optionalUser = userRepository.getUserById(id);
+
+        // добавляем друзей
+        if (optionalUser.isPresent()) {
+            addUserFriends(optionalUser.get());
+        }
+
+        return optionalUser;
     }
 
     @Override
@@ -49,15 +62,14 @@ public class UserDbStorage implements UserStorage {
     }
 
     @Override
-    public boolean findFriendById(long userId, long friendId) {
-        // TODO findFriendById
-        return false;
-    }
-
-    @Override
     public Set<User> getUserFriends(long id) {
-        // TODO Нужно понять выгружать всех или только подвержденных друзей
         return new HashSet<>(userRepository.getUserFriends(id));
     }
 
+    private void addUserFriends(User user) {
+        user.setFriends(userRepository.getUserFriends(
+                        user.getId()).stream()
+                .map(User::getId)
+                .collect(Collectors.toSet()));
+    }
 }
