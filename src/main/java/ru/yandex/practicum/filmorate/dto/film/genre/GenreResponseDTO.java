@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.model;
+package ru.yandex.practicum.filmorate.dto.film.genre;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -8,7 +8,7 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 @Builder
-public class Genre {
+public class GenreResponseDTO {
 
     private int id;
 

@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.storage;
+package ru.yandex.practicum.filmorate.storage.user;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -60,7 +60,4 @@ public class UserDbStorage implements UserStorage {
         return new HashSet<>(userRepository.getUserFriends(id));
     }
 
-    // TODO getFilmGenres
-
-    // TODO setFilmGenres
 }

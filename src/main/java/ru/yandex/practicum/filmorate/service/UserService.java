@@ -9,9 +9,9 @@ import ru.yandex.practicum.filmorate.dto.user.UserResponseDTO;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.StorageException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
-import ru.yandex.practicum.filmorate.mapper.UserMapper;
+import ru.yandex.practicum.filmorate.mapper.user.UserMapper;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.UserStorage;
+import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.Collection;
 import java.util.Objects;
@@ -25,15 +25,17 @@ public class UserService {
 
 
     private final UserStorage userStorage;
+    private final UserMapper userMapper;
 
 
-    public UserService(@Qualifier("userDbStorage") UserStorage userStorage) {
+    public UserService(@Qualifier("userDbStorage") UserStorage userStorage, UserMapper userMapper) {
         this.userStorage = userStorage;
+        this.userMapper = userMapper;
     }
 
     public UserResponseDTO createUser(NewUserRequestDTO newUserRequestDTO) {
 
-        User newUser = UserMapper.toUser(newUserRequestDTO);
+        User newUser = userMapper.toUser(newUserRequestDTO);
 
         setUserNameIfEmpty(newUser);
         Long newUserId = userStorage.createUser(newUser);
@@ -46,20 +48,20 @@ public class UserService {
         }
         log.info("New user with id={} was created", userInStorage.get().getId());
 
-        return UserMapper.toUserResponseDTO(userInStorage.get());
+        return userMapper.toUserResponseDTO(userInStorage.get());
     }
 
     public Collection<UserResponseDTO> getUsers() {
-        return UserMapper.toUserResponseDTO(userStorage.getUsers());
+        return userMapper.toUserResponseDTO(userStorage.getUsers());
     }
 
     public UserResponseDTO getUserById(long id) {
-        return UserMapper.toUserResponseDTO(checkAndGetUserById(id));
+        return userMapper.toUserResponseDTO(checkAndGetUserById(id));
     }
 
     public UserResponseDTO updateUser(UpdateUserRequestDTO userToUpdateDTO) {
 
-        User userToUpdate = UserMapper.toUser(userToUpdateDTO);
+        User userToUpdate = userMapper.toUser(userToUpdateDTO);
 
         validateUserToUpdate(userToUpdate);
         boolean wasUpdated = userStorage.updateUser(userToUpdate);
@@ -70,7 +72,7 @@ public class UserService {
         Optional<User> userOptional = userStorage.findUserById(userToUpdate.getId());
 
 
-        return UserMapper.toUserResponseDTO(userOptional.get());
+        return userMapper.toUserResponseDTO(userOptional.get());
     }
 
     public void addFriend(long userId, long friendId) {
@@ -145,8 +147,6 @@ public class UserService {
 
     protected boolean isUserHaveFriend(Long user_id, Long friend_id) {
 
-        Set<User> li = userStorage.getUserFriends(user_id);
-
         return !userStorage.getUserFriends(user_id).stream()
                 .filter(user -> Objects.equals(user.getId(), friend_id))
                 .toList().isEmpty();
@@ -154,7 +154,7 @@ public class UserService {
 
     public Collection<UserResponseDTO> getUserFriends(long userId) {
         checkAndGetUserById(userId);
-        return UserMapper.toUserResponseDTO(userStorage.getUserFriends(userId));
+        return userMapper.toUserResponseDTO(userStorage.getUserFriends(userId));
     }
 
     public Collection<UserResponseDTO> getUserCommonFriends(long userId, long otherUserId) {
@@ -169,7 +169,7 @@ public class UserService {
         Set<User> userFriends = userStorage.getUserFriends(userId);
         Set<User> otherUserIdFriends = userStorage.getUserFriends(otherUserId);
 
-        return UserMapper.toUserResponseDTO(userFriends
+        return userMapper.toUserResponseDTO(userFriends
                 .stream()
                 .filter(otherUserIdFriends::contains)
                 .collect(Collectors.toSet()));

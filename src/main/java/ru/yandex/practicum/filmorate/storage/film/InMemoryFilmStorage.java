@@ -1,8 +1,10 @@
-package ru.yandex.practicum.filmorate.storage;
+package ru.yandex.practicum.filmorate.storage.film;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.MpaRate;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -15,11 +17,11 @@ public class InMemoryFilmStorage implements FilmStorage {
     private Long filmId = 1L;
 
     @Override
-    public boolean createFilm(Film newFilm) {
+    public Long createFilm(Film newFilm) {
         newFilm.setId(filmId++);
-        newFilm.setUsersLikes(new HashSet<>());
+        newFilm.setUsersLikes(new ArrayList<>());
         films.put(newFilm.getId(), newFilm);
-        return true;
+        return newFilm.getId();
     }
 
     @Override
@@ -37,9 +39,33 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
+    public Optional<MpaRate> getMpaRateById(int mpaId) {
+        // насколько я понял наставника, эту версию можно не развивать
+        return Optional.empty();
+    }
+
+    @Override
+    public Collection<MpaRate> getMpaRates() {
+        // насколько я понял наставника, эту версию можно не развивать
+        return List.of();
+    }
+
+    @Override
+    public Optional<Genre> getGenreById(int mpaId) {
+        // насколько я понял наставника, эту версию можно не развивать
+        return Optional.empty();
+    }
+
+    @Override
+    public Collection<Genre> getGenres() {
+        // насколько я понял наставника, эту версию можно не развивать
+        return List.of();
+    }
+
+    @Override
     public boolean updateFilm(Film filmToUpdate) {
         if (filmToUpdate.getUsersLikes() == null) {
-            filmToUpdate.setUsersLikes(new HashSet<>());
+            filmToUpdate.setUsersLikes(new ArrayList<>());
         }
         films.put(filmToUpdate.getId(), filmToUpdate);
         return true;
@@ -59,9 +85,9 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public boolean addUserLike(long filmId, long userId) {
+    public int addUserLike(long filmId, long userId) {
         films.get(filmId).getUsersLikes().add(userId);
-        return true;
+        return 1;
     }
 
     @Override

@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.model;
+package ru.yandex.practicum.filmorate.dto.film;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -7,13 +7,17 @@ import lombok.Builder;
 import lombok.Data;
 import org.hibernate.validator.constraints.Length;
 import ru.yandex.practicum.filmorate.config.AppConfig;
+import ru.yandex.practicum.filmorate.dto.film.genre.GenreResponseDTO;
+import ru.yandex.practicum.filmorate.dto.film.genre.GenreResponseInFilmDTO;
+import ru.yandex.practicum.filmorate.dto.film.mparate.MpaRateResponseInFilmDTO;
+import ru.yandex.practicum.filmorate.model.Genre;
 
 import java.time.LocalDate;
 import java.util.List;
 
 @Data
 @Builder
-public class Film {
+public class FilmResponseDTO {
 
     private long id;
 
@@ -31,9 +35,8 @@ public class Film {
 
     private List<Long> usersLikes;
 
-    private MpaRate mpaRate;
+    private MpaRateResponseInFilmDTO mpa;
 
-    private List<Genre> genres;
-
+    private List<GenreResponseInFilmDTO> genres;
 
 }
