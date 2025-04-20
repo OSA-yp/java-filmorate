@@ -11,4 +11,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties("filmorate")
 public class AppConfig {
     private int defaultTopFilmCount;
+
+    public static final int FILM_DESCRIPTION_LENGTH = 200;
 }

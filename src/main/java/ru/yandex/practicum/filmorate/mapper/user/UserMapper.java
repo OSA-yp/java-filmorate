@@ -1,5 +1,6 @@
-package ru.yandex.practicum.filmorate.mapper;
+package ru.yandex.practicum.filmorate.mapper.user;
 
+import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.dto.user.NewUserRequestDTO;
 import ru.yandex.practicum.filmorate.dto.user.UpdateUserRequestDTO;
 import ru.yandex.practicum.filmorate.dto.user.UserResponseDTO;
@@ -9,8 +10,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
+@Component
 public class UserMapper {
-    public static UserResponseDTO toUserResponseDTO(User user) {
+    public UserResponseDTO toUserResponseDTO(User user) {
         return UserResponseDTO.builder()
                 .id(user.getId())
                 .name(user.getName())
@@ -21,8 +23,8 @@ public class UserMapper {
                 .build();
     }
 
-    public static Collection<UserResponseDTO> toUserResponseDTO(Collection<User> userSet) {
-        return userSet.stream()
+    public Collection<UserResponseDTO> toUserResponseDTO(Collection<User> users) {
+        return users.stream()
                 .map(user -> UserResponseDTO.builder()
                         .id(user.getId())
                         .name(user.getName())
@@ -35,7 +37,7 @@ public class UserMapper {
 
     }
 
-    public static User toUser(NewUserRequestDTO newUserRequestDTO) {
+    public User toUser(NewUserRequestDTO newUserRequestDTO) {
         return User.builder()
                 .email(newUserRequestDTO.getEmail())
                 .login(newUserRequestDTO.getLogin())
@@ -44,7 +46,7 @@ public class UserMapper {
                 .build();
     }
 
-    public static User toUser(UpdateUserRequestDTO updateUserRequestDTO) {
+    public User toUser(UpdateUserRequestDTO updateUserRequestDTO) {
         return User.builder()
                 .id(updateUserRequestDTO.getId())
                 .email(updateUserRequestDTO.getEmail())

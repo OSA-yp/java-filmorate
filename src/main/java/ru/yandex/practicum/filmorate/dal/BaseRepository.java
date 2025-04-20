@@ -10,6 +10,7 @@ public class BaseRepository<T> {
     private final RowMapper<T> mapper;
     private final Class<T> table;
 
+    // TODO понять нужен ли
 
 
 }
