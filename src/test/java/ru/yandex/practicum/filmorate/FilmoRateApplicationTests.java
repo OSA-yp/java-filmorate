@@ -335,7 +335,6 @@ public class FilmoRateApplicationTests {
     }
 
 
-
     private User buildUser(String name) {
         return User.builder()
                 .name(name)

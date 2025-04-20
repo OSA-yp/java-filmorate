@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.service;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dto.film.genre.GenreResponseDTO;
@@ -18,7 +17,7 @@ public class GenreService {
     private final FilmStorage filmStorage;
     private final GenreMapper genreMapper;
 
-    public GenreService(@Qualifier("filmDbStorage") FilmStorage filmStorage, GenreMapper genreMapper ) {
+    public GenreService(@Qualifier("filmDbStorage") FilmStorage filmStorage, GenreMapper genreMapper) {
         this.filmStorage = filmStorage;
         this.genreMapper = genreMapper;
     }

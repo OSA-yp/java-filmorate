@@ -38,6 +38,6 @@ public class MpaRateService {
     }
 
     public Collection<MpaRateResponseDTO> getMpaRates() {
-        return  mpaRateMapper.toMpaRateResponseDTO(filmStorage.getMpaRates());
+        return mpaRateMapper.toMpaRateResponseDTO(filmStorage.getMpaRates());
     }
 }

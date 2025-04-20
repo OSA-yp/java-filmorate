@@ -7,10 +7,8 @@ import lombok.Builder;
 import lombok.Data;
 import org.hibernate.validator.constraints.Length;
 import ru.yandex.practicum.filmorate.config.AppConfig;
-import ru.yandex.practicum.filmorate.dto.film.genre.GenreResponseDTO;
 import ru.yandex.practicum.filmorate.dto.film.genre.GenreResponseInFilmDTO;
 import ru.yandex.practicum.filmorate.dto.film.mparate.MpaRateResponseInFilmDTO;
-import ru.yandex.practicum.filmorate.model.Genre;
 
 import java.time.LocalDate;
 import java.util.List;

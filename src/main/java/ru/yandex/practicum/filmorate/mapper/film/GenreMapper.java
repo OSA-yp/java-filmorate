@@ -6,7 +6,6 @@ import ru.yandex.practicum.filmorate.dto.film.genre.GenreRequestInFilmDTO;
 import ru.yandex.practicum.filmorate.dto.film.genre.GenreResponseDTO;
 import ru.yandex.practicum.filmorate.dto.film.genre.GenreResponseInFilmDTO;
 import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.service.GenreService;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -27,14 +26,14 @@ public class GenreMapper {
 
     }
 
-    public GenreResponseInFilmDTO toGenreResponseInFilmDTO(Genre genre){
+    public GenreResponseInFilmDTO toGenreResponseInFilmDTO(Genre genre) {
         return GenreResponseInFilmDTO.builder()
                 .id(genre.getId())
                 .name(genre.getName())
                 .build();
     }
 
-    public Genre toGenre(GenreRequestInFilmDTO genreRequestInFilmDTO){
+    public Genre toGenre(GenreRequestInFilmDTO genreRequestInFilmDTO) {
         return Genre.builder()
                 .id(genreRequestInFilmDTO.getId())
                 .build();
