@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.hibernate.validator.constraints.Length;
 import ru.yandex.practicum.filmorate.config.AppConfig;
 
@@ -13,6 +14,7 @@ import java.util.List;
 
 @Data
 @Builder
+@EqualsAndHashCode(of = "id")
 public class Film {
 
     private long id;
