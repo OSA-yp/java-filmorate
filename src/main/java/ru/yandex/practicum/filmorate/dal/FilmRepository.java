@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.dal;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -174,12 +173,12 @@ public class FilmRepository {
         genres.stream()
                 .distinct()  // добавляем только уникальные жанры
                 .forEach(genre -> {
-            if (!isGenreIndexOK(genre.getId())) {
-                throw new NotFoundException("GENRE_ID index = " + genre.getId() + " not found");
-            }
-            jdbcTemplate.update(sqlString, filmId, genre.getId());
+                    if (!isGenreIndexOK(genre.getId())) {
+                        throw new NotFoundException("GENRE_ID index = " + genre.getId() + " not found");
+                    }
+                    jdbcTemplate.update(sqlString, filmId, genre.getId());
 
-        });
+                });
 
     }
 

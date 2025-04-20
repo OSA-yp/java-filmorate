@@ -1,13 +1,11 @@
 package ru.yandex.practicum.filmorate.mapper.film;
 
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.dto.film.mparate.MpaRateRequestInFilmDTO;
 import ru.yandex.practicum.filmorate.dto.film.mparate.MpaRateResponseDTO;
 import ru.yandex.practicum.filmorate.dto.film.mparate.MpaRateResponseInFilmDTO;
 import ru.yandex.practicum.filmorate.model.MpaRate;
-import ru.yandex.practicum.filmorate.service.MpaRateService;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -34,7 +32,7 @@ public class MpaRateMapper {
 
     }
 
-    public MpaRateResponseInFilmDTO toMpaRateResponseInFilmDTO(MpaRate mpaRate){
+    public MpaRateResponseInFilmDTO toMpaRateResponseInFilmDTO(MpaRate mpaRate) {
         return MpaRateResponseInFilmDTO.builder()
                 .id(mpaRate.getId())
                 .name(mpaRate.getName())

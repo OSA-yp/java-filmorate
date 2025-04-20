@@ -46,7 +46,7 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Optional<Film> getFilmById(long id) {
-        Optional<Film> optionalFilm =  filmRepository.getFilmById(id);
+        Optional<Film> optionalFilm = filmRepository.getFilmById(id);
         if (optionalFilm.isPresent()) {
             addCollectionsToFilm(optionalFilm.get());
         }

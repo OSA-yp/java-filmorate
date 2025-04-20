@@ -66,7 +66,7 @@ public class FilmService {
         Optional<Film> optionalFilm = filmStorage.getFilmById(filmId);
 
         if (optionalFilm.isEmpty()) {
-            throw new NotFoundException("Film with id="+ filmId + " not found");
+            throw new NotFoundException("Film with id=" + filmId + " not found");
         }
 
         return filmMapper.toFilmResponseDTO(optionalFilm.get());
