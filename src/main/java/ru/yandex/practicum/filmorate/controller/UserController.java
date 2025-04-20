@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
+import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.dto.user.NewUserRequestDTO;
 import ru.yandex.practicum.filmorate.dto.user.UpdateUserRequestDTO;
@@ -11,13 +12,10 @@ import java.util.Collection;
 
 @RestController
 @RequestMapping("/users")
+@AllArgsConstructor
 public class UserController {
 
     private final UserService userService;
-
-    public UserController(UserService userService) {
-        this.userService = userService;
-    }
 
     @PostMapping
     public UserResponseDTO createUser(@RequestBody @Valid NewUserRequestDTO newUser) {
