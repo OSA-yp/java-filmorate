@@ -59,11 +59,6 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public boolean findFriendById(long userId, long friendId) {
-        return users.get(userId).getFriends().contains(friendId);
-    }
-
-    @Override
     public Set<User> getUserFriends(long userId) {
         return users.get(userId).getFriends()
                 .stream()
