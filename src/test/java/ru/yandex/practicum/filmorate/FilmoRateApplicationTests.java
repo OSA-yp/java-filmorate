@@ -39,7 +39,7 @@ public class FilmoRateApplicationTests {
 
 
     @BeforeAll
-    public void Config() {
+    public void config() {
 
         userStorage.createUser(buildUser("name1"));
         userStorage.createUser(buildUser("name2"));
