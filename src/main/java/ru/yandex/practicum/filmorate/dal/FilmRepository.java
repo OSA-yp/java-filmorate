@@ -1,0 +1,262 @@
+package ru.yandex.practicum.filmorate.dal;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.stereotype.Repository;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.MpaRate;
+
+import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+
+@Repository
+@RequiredArgsConstructor
+public class FilmRepository {
+
+    protected final JdbcTemplate jdbcTemplate;
+    private final RowMapper<Film> filmRowMapper;
+    private final RowMapper<MpaRate> mpaRateRowMapper;
+    private final RowMapper<Genre> genreRowMapper;
+
+    public long createFilm(Film newFilm) {
+
+        if (isMpaRateIndexNotOK(newFilm.getMpaRate().getId())) {
+            throw new NotFoundException("MPA_RATE index = " + newFilm.getMpaRate().getId() + " not found");
+        }
+
+        String sqlString = "INSERT INTO FILMS(NAME, DESCRIPTION, RELEASE_DATE, DURATION, MPA_RATE) " +
+                "values (?, ?, ?, ?, ?)";
+
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+
+        jdbcTemplate.update(connection -> {
+            PreparedStatement stmt = connection.prepareStatement(sqlString, new String[]{"FILM_ID"});
+            stmt.setString(1, newFilm.getName());
+            stmt.setString(2, newFilm.getDescription());
+            stmt.setDate(3, Date.valueOf(newFilm.getReleaseDate()));
+            stmt.setInt(4, newFilm.getDuration());
+            stmt.setInt(5, newFilm.getMpaRate().getId());
+            return stmt;
+        }, keyHolder);
+
+        return keyHolder.getKey().longValue();
+    }
+
+    public boolean updateFilm(Film filmToUpdate) {
+
+        if (isMpaRateIndexNotOK(filmToUpdate.getMpaRate().getId())) {
+            throw new NotFoundException("MPA_RATE index = " + filmToUpdate.getMpaRate().getId() + " not found");
+        }
+
+        String sqlString = "UPDATE FILMS SET NAME=?, DESCRIPTION=?, RELEASE_DATE=?, DURATION=?, MPA_RATE=?  WHERE FILM_ID=" + filmToUpdate.getId();
+
+        int answer = jdbcTemplate.update(sqlString,
+                filmToUpdate.getName(),
+                filmToUpdate.getDescription(),
+                filmToUpdate.getReleaseDate(),
+                filmToUpdate.getDuration(),
+                filmToUpdate.getMpaRate().getId()
+        );
+
+        if (answer != 1) {
+            return false;
+        }
+        return true;
+    }
+
+    public int getFilmsCount() {
+        String sqlString = "SELECT Count(film_id) FROM FILMS";
+        int count = 0;
+
+        try {
+            count = jdbcTemplate.queryForObject(sqlString, Integer.class);
+        } catch (NullPointerException e) {
+            return count;
+        }
+        return count;
+
+    }
+
+
+    public Optional<Film> getFilmById(long filmId) {
+        String queryFilm = "SELECT * FROM FILMS WHERE film_id=?";
+
+
+        Optional<Film> optionalFilm;
+        try {
+            optionalFilm = Optional.ofNullable(jdbcTemplate.queryForObject(queryFilm, filmRowMapper, filmId));
+
+            if (optionalFilm.isPresent()) {
+
+                Film film = optionalFilm.get();
+
+                // Заполняем рейтинг
+                Optional<MpaRate> optionalMpaRate = getMpaRateById(film.getMpaRate().getId());
+                if (optionalMpaRate.isPresent()) {
+                    film.setMpaRate(optionalMpaRate.get());
+                }
+
+            }
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty();
+        }
+        return optionalFilm;
+    }
+
+
+    private List<Long> getFilmLikes(Long filmId) {
+        String queryLikes = "SELECT USER_ID FROM FILMS_LIKES WHERE film_id=?";
+        try {
+            return jdbcTemplate.queryForList(queryLikes, Long.class, filmId);
+        } catch (EmptyResultDataAccessException e) {
+            return new ArrayList<>();
+        }
+    }
+
+    public Optional<MpaRate> getMpaRateById(int mpaId) {
+        Optional<MpaRate> mpaRate;
+        String queryMpaRate = "SELECT * FROM MPA_RATE WHERE MPA_ID=?";
+        try {
+            mpaRate = Optional.ofNullable(jdbcTemplate.queryForObject(queryMpaRate, mpaRateRowMapper, mpaId));
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty();
+        }
+        return mpaRate;
+    }
+
+    public Collection<MpaRate> getMpaRates() {
+        String queryMpaRates = "SELECT * FROM MPA_RATE";
+        try {
+            return jdbcTemplate.query(queryMpaRates, mpaRateRowMapper);
+        } catch (EmptyResultDataAccessException e) {
+            return new ArrayList<>();
+        }
+
+    }
+
+    public Optional<Genre> getGenreById(int genreId) {
+        Optional<Genre> genre;
+        String queryGenre = "SELECT * FROM GENRES WHERE GENRE_ID=?";
+        try {
+            genre = Optional.ofNullable(jdbcTemplate.queryForObject(queryGenre, genreRowMapper, genreId));
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty();
+        }
+        return genre;
+
+    }
+
+    public Collection<Genre> getGenres() {
+        String queryGenre = "SELECT * FROM GENRES";
+        try {
+            return jdbcTemplate.query(queryGenre, genreRowMapper);
+        } catch (EmptyResultDataAccessException e) {
+            return new ArrayList<>();
+        }
+    }
+
+
+    public void addFilmGenres(Long filmId, List<Genre> genres) {
+        String sqlString = "INSERT INTO FILMS_GENRES(FILM_ID, GENRE_ID) " +
+                "values (?, ?)";
+
+        genres.stream()
+                .distinct()  // добавляем только уникальные жанры
+                .forEach(genre -> {
+                    if (!isGenreIndexOK(genre.getId())) {
+                        throw new NotFoundException("GENRE_ID index = " + genre.getId() + " not found");
+                    }
+                    jdbcTemplate.update(sqlString, filmId, genre.getId());
+
+                });
+
+    }
+
+    public List<Genre> getFilmGenres(Long filmId) {
+        String queryFilmGenres = "SELECT g.GENRE_ID, g.NAME FROM FILMS_GENRES fg " +
+                "JOIN GENRES g ON fg.GENRE_ID = g.GENRE_ID " +
+                "WHERE fg.FILM_ID=?";
+        try {
+            return jdbcTemplate.query(queryFilmGenres, genreRowMapper, filmId);
+        } catch (EmptyResultDataAccessException e) {
+            return new ArrayList<>();
+        }
+
+    }
+
+    public int addFilmUserLikes(Long filmId, Long userId) {
+        String sqlString = "INSERT INTO FILMS_LIKES(FILM_ID, USER_ID) " +
+                "values (?, ?)";
+
+        return jdbcTemplate.update(sqlString, filmId, userId);
+    }
+
+    public List<Long> getFilmUserLikes(long filmId) {
+        String queryFilmUserLikes = "SELECT USER_ID FROM FILMS_LIKES WHERE FILM_ID=?";
+        try {
+            return jdbcTemplate.queryForList(queryFilmUserLikes, Long.class, filmId);
+        } catch (EmptyResultDataAccessException e) {
+            return new ArrayList<>();
+        }
+    }
+
+    public Collection<Film> getAllFilms() {
+        String sqlString = "SELECT * FROM FILMS";
+
+        return jdbcTemplate.query(sqlString, filmRowMapper);
+    }
+
+    private boolean isMpaRateIndexNotOK(int mpaRateIndex) {
+        String sqlString = "SELECT Count(MPA_ID) FROM MPA_RATE";
+        int count;
+
+        try {
+            count = jdbcTemplate.queryForObject(sqlString, Integer.class);
+        } catch (NullPointerException e) {
+            return true;
+        }
+        return mpaRateIndex > count;
+
+    }
+
+    private boolean isGenreIndexOK(int genreIndex) {
+        String sqlString = "SELECT Count(GENRE_ID) FROM GENRES";
+        int count;
+
+        try {
+            count = jdbcTemplate.queryForObject(sqlString, Integer.class);
+        } catch (NullPointerException e) {
+            return false;
+        }
+        return !(genreIndex > count);
+
+    }
+
+    public Collection<Film> getTopFilms(int count) {
+        String getTopSql = "SELECT f.* FROM FILMS f " +
+                "JOIN FILMS_LIKES fl ON f.FILM_ID = fl.FILM_ID " +
+                "GROUP BY f.FILM_ID " +
+                "ORDER BY COUNT(USER_ID) DESC " +
+                "LIMIT ?";
+        return jdbcTemplate.query(getTopSql, filmRowMapper, count);
+
+    }
+
+    public boolean deleteUserLike(long filmId, long userId) {
+        String deleteUserLikeSql = "DELETE FROM FILMS_LIKES " +
+                "WHERE FILM_ID=? AND USER_ID=?";
+
+
+        return jdbcTemplate.update(deleteUserLikeSql, filmId, userId) > 0;
+    }
+}
