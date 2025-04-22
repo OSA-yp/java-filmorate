@@ -51,7 +51,6 @@ public class FilmService {
         }
         newFilm.setId(newFilmId);
 
-        log.warn(newFilm.toString());
         return filmMapper.toFilmResponseDTO(newFilm);
     }
 
