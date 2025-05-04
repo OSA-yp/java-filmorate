@@ -10,7 +10,6 @@ import lombok.Data;
 import java.time.LocalDate;
 
 @Data
-@AllArgsConstructor
 public class NewUserRequestDTO {
     @NotNull
     @Email

@@ -25,7 +25,7 @@ public class UserRepository {
 
     public Optional<User> getUserById(long userId) {
 
-        String sqlString = "SELECT * FROM USERS WHERE user_id=?";
+        String sqlString = "SELECT USER_ID, NAME, EMAIL, LOGIN, BIRTHDAY FROM USERS WHERE user_id=?";
 
         Optional<User> user;
         try {
@@ -38,7 +38,7 @@ public class UserRepository {
 
 
     public Collection<User> getAllUsers() {
-        String sqlString = "SELECT * FROM USERS";
+        String sqlString = "SELECT USER_ID, NAME, EMAIL, LOGIN, BIRTHDAY FROM USERS";
 
         return jdbcTemplate.query(sqlString, userRowMapper);
     }

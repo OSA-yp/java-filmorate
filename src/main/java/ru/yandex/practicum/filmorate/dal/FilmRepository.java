@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.dal;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -14,7 +13,6 @@ import ru.yandex.practicum.filmorate.model.MpaRate;
 
 import java.sql.Date;
 import java.sql.PreparedStatement;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -76,93 +74,75 @@ public class FilmRepository {
 
     public int getFilmsCount() {
         String sqlString = "SELECT Count(film_id) FROM FILMS";
-        int count = 0;
+        Integer count;
 
-        try {
-            count = jdbcTemplate.queryForObject(sqlString, Integer.class);
-        } catch (NullPointerException e) {
-            return count;
+        count = jdbcTemplate.queryForObject(sqlString, Integer.class);
+
+        if (count == null) {
+            return 0;
         }
         return count;
-
     }
 
 
     public Optional<Film> getFilmById(long filmId) {
-        String queryFilm = "SELECT * FROM FILMS WHERE film_id=?";
+        String queryFilm = "SELECT FILM_ID, NAME, DESCRIPTION, RELEASE_DATE, DURATION, MPA_RATE FROM FILMS WHERE film_id=?";
 
 
         Optional<Film> optionalFilm;
-        try {
-            optionalFilm = Optional.ofNullable(jdbcTemplate.queryForObject(queryFilm, filmRowMapper, filmId));
+        optionalFilm = Optional.ofNullable(jdbcTemplate.queryForObject(queryFilm, filmRowMapper, filmId));
 
-            if (optionalFilm.isPresent()) {
+        if (optionalFilm.isPresent()) {
 
-                Film film = optionalFilm.get();
+            Film film = optionalFilm.get();
 
-                // Заполняем рейтинг
-                Optional<MpaRate> optionalMpaRate = getMpaRateById(film.getMpaRate().getId());
-                if (optionalMpaRate.isPresent()) {
-                    film.setMpaRate(optionalMpaRate.get());
-                }
-
+            // Заполняем рейтинг
+            Optional<MpaRate> optionalMpaRate = getMpaRateById(film.getMpaRate().getId());
+            if (optionalMpaRate.isPresent()) {
+                film.setMpaRate(optionalMpaRate.get());
             }
-        } catch (EmptyResultDataAccessException e) {
-            return Optional.empty();
+
         }
+
         return optionalFilm;
     }
 
 
     private List<Long> getFilmLikes(Long filmId) {
         String queryLikes = "SELECT USER_ID FROM FILMS_LIKES WHERE film_id=?";
-        try {
-            return jdbcTemplate.queryForList(queryLikes, Long.class, filmId);
-        } catch (EmptyResultDataAccessException e) {
-            return new ArrayList<>();
-        }
+        var filmLikes = jdbcTemplate.queryForList(queryLikes, Long.class, filmId);
+
+        return filmLikes;
     }
 
     public Optional<MpaRate> getMpaRateById(int mpaId) {
-        Optional<MpaRate> mpaRate;
-        String queryMpaRate = "SELECT * FROM MPA_RATE WHERE MPA_ID=?";
-        try {
-            mpaRate = Optional.ofNullable(jdbcTemplate.queryForObject(queryMpaRate, mpaRateRowMapper, mpaId));
-        } catch (EmptyResultDataAccessException e) {
-            return Optional.empty();
-        }
-        return mpaRate;
+        String queryMpaRate = "SELECT mpa_id, name FROM MPA_RATE WHERE MPA_ID=?";
+
+        List<MpaRate> result = jdbcTemplate.query(queryMpaRate, mpaRateRowMapper, mpaId);
+
+        return result.stream().findFirst();
+
     }
 
     public Collection<MpaRate> getMpaRates() {
-        String queryMpaRates = "SELECT * FROM MPA_RATE";
-        try {
-            return jdbcTemplate.query(queryMpaRates, mpaRateRowMapper);
-        } catch (EmptyResultDataAccessException e) {
-            return new ArrayList<>();
-        }
-
+        String queryMpaRates = "SELECT mpa_id, name FROM MPA_RATE";
+        var mpaRates = jdbcTemplate.query(queryMpaRates, mpaRateRowMapper);
+        return mpaRates;
     }
 
     public Optional<Genre> getGenreById(int genreId) {
-        Optional<Genre> genre;
-        String queryGenre = "SELECT * FROM GENRES WHERE GENRE_ID=?";
-        try {
-            genre = Optional.ofNullable(jdbcTemplate.queryForObject(queryGenre, genreRowMapper, genreId));
-        } catch (EmptyResultDataAccessException e) {
-            return Optional.empty();
-        }
-        return genre;
+        String queryGenre = "SELECT genre_id, name FROM GENRES WHERE GENRE_ID=?";
+        List<Genre> result = jdbcTemplate.query(queryGenre, genreRowMapper, genreId);
 
+        return result.stream().findFirst();
     }
 
     public Collection<Genre> getGenres() {
-        String queryGenre = "SELECT * FROM GENRES";
-        try {
-            return jdbcTemplate.query(queryGenre, genreRowMapper);
-        } catch (EmptyResultDataAccessException e) {
-            return new ArrayList<>();
-        }
+        String queryGenre = "SELECT genre_id, name FROM GENRES";
+
+        var geners = jdbcTemplate.query(queryGenre, genreRowMapper);
+
+        return geners;
     }
 
 
@@ -179,19 +159,16 @@ public class FilmRepository {
                     jdbcTemplate.update(sqlString, filmId, genre.getId());
 
                 });
-
     }
 
     public List<Genre> getFilmGenres(Long filmId) {
         String queryFilmGenres = "SELECT g.GENRE_ID, g.NAME FROM FILMS_GENRES fg " +
                 "JOIN GENRES g ON fg.GENRE_ID = g.GENRE_ID " +
                 "WHERE fg.FILM_ID=?";
-        try {
-            return jdbcTemplate.query(queryFilmGenres, genreRowMapper, filmId);
-        } catch (EmptyResultDataAccessException e) {
-            return new ArrayList<>();
-        }
 
+        var filmGenres = jdbcTemplate.query(queryFilmGenres, genreRowMapper, filmId);
+
+        return filmGenres;
     }
 
     public int addFilmUserLikes(Long filmId, Long userId) {
@@ -203,41 +180,40 @@ public class FilmRepository {
 
     public List<Long> getFilmUserLikes(long filmId) {
         String queryFilmUserLikes = "SELECT USER_ID FROM FILMS_LIKES WHERE FILM_ID=?";
-        try {
-            return jdbcTemplate.queryForList(queryFilmUserLikes, Long.class, filmId);
-        } catch (EmptyResultDataAccessException e) {
-            return new ArrayList<>();
-        }
+
+        return jdbcTemplate.queryForList(queryFilmUserLikes, Long.class, filmId);
     }
 
     public Collection<Film> getAllFilms() {
-        String sqlString = "SELECT * FROM FILMS";
+        String sqlString = "SELECT FILM_ID, NAME, DESCRIPTION, RELEASE_DATE, DURATION, MPA_RATE FROM FILMS";
 
         return jdbcTemplate.query(sqlString, filmRowMapper);
     }
 
     private boolean isMpaRateIndexNotOK(int mpaRateIndex) {
         String sqlString = "SELECT Count(MPA_ID) FROM MPA_RATE";
-        int count;
+        Integer count;
 
-        try {
-            count = jdbcTemplate.queryForObject(sqlString, Integer.class);
-        } catch (NullPointerException e) {
-            return true;
+
+        count = jdbcTemplate.queryForObject(sqlString, Integer.class);
+
+        if (count == null) {
+            return false;
         }
-        return mpaRateIndex > count;
 
+        return mpaRateIndex > count;
     }
 
     private boolean isGenreIndexOK(int genreIndex) {
         String sqlString = "SELECT Count(GENRE_ID) FROM GENRES";
-        int count;
+        Integer count;
 
-        try {
-            count = jdbcTemplate.queryForObject(sqlString, Integer.class);
-        } catch (NullPointerException e) {
+        count = jdbcTemplate.queryForObject(sqlString, Integer.class);
+
+        if (count == null) {
             return false;
         }
+
         return !(genreIndex > count);
 
     }
@@ -249,7 +225,6 @@ public class FilmRepository {
                 "ORDER BY COUNT(USER_ID) DESC " +
                 "LIMIT ?";
         return jdbcTemplate.query(getTopSql, filmRowMapper, count);
-
     }
 
     public boolean deleteUserLike(long filmId, long userId) {
